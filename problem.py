@@ -17,6 +17,7 @@ class Problem:
         self.visited_nodes = 0
 
         self._default_bound_function = True
+        self.possible_solution = None
 
     def get_groups(self):
         return self._groups
@@ -63,7 +64,6 @@ class Problem:
 
     def resolve(self):
         """Resolver of the problem: creates a tree of execution with the node queue of the Problem class"""
-        possible_solution = None
         for i in range(0, len(self.get_actors_sorted_by_value())):
             node = Node([self.get_actors_sorted_by_value()[i]], self.get_actors_sorted_by_value()[i+1:])
             self._queue.put(node)  # Put initial node a child of root and has all actors with higher cost then him to visit
@@ -74,10 +74,10 @@ class Problem:
                 if not candidate.isVisited:
                     self.increases_visited_nodes()
 
-                if self.is_possible_solution(candidate) and not candidate.isVisited:
+                if not candidate.isVisited and self.is_possible_solution(candidate):
                     self._max_cost = candidate.get_current_value()
-                    #possible_solution = candidate
-                    return candidate
+                    self.possible_solution = candidate
+                    return
                 else:
                     if candidate.have_more_child():
                         if self._default_bound_function:
@@ -88,4 +88,3 @@ class Problem:
                     else:
                         candidate.close_node()
                 candidate.visit()
-        return possible_solution
