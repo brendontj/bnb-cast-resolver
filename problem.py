@@ -76,7 +76,8 @@ class Problem:
 
                 if self.is_possible_solution(candidate) and not candidate.isVisited:
                     self._max_cost = candidate.get_current_value()
-                    possible_solution = candidate
+                    #possible_solution = candidate
+                    return candidate
                 else:
                     if candidate.have_more_child():
                         if self._default_bound_function:
