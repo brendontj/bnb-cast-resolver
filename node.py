@@ -2,11 +2,12 @@
 
 
 class Node:
-    # actors is a list of Actor
     def __init__(self, actors):
         self._actors = actors
-        self._groups = list()
+        self._groups = set()
         self._current_value = 0
+        self._chields_to_be_visited = set()
+        self.isClosedNode = False
 
         self.update_groups()
         self.update_current_value()
@@ -21,16 +22,19 @@ class Node:
         return self._current_value
 
     def update_groups(self):
-        for actor in self.get_actors():
+        for actor in self._actors:
             groups_of_actor = actor.get_groups()
             for ga in groups_of_actor:
-                if ga not in self._groups:
-                    self._groups.append(ga)
+                self._groups.add(ga)
+
+    def have_more_chields(self):
+        if len(self._chields_to_be_visited):
+            return True
+        return False
+
+    def level(self):
+        return len(self._actors)
 
     def update_current_value(self):
-        for actor in self.get_actors():
+        for actor in self._actors:
             self._current_value += actor.get_value()
-
-    def print(self):
-        for a in self.get_actors():
-            print(a.get_index(), end='-')

@@ -3,6 +3,8 @@ import queue
 
 from node import Node
 
+INFINITE = 99999999
+
 
 class Problem:
     def __init__(self, groups, actors, number_characters):
@@ -10,7 +12,7 @@ class Problem:
         self._actors = actors
         self._number_characters = number_characters
 
-        self._bound_function_value = 100000
+        self._bound_value = INFINITE
         self._queue = self.initialize_queue()
 
     def get_groups(self):
@@ -19,41 +21,47 @@ class Problem:
     def get_actors(self):
         return self._actors
 
-    def get_number_characters(self):
+    def max_level(self):
         return self._number_characters
 
     def get_queue(self):
         return self._queue
 
-    def get_actors_reverse_sorted_by_value(self):
+    def get_actors_sorted_by_value(self):
         return sorted(self._actors, key=lambda x: x.get_value())
 
     def initialize_queue(self):
+        """Initialize queue with the most cheap actor"""
         q = queue.Queue()
-
-        for actor in self.get_actors_reverse_sorted_by_value():
-            actors = list()
-            actors.append(actor)
-            node = Node(actors)
-            q.put(node)
+        node = Node([self.get_actors_sorted_by_value()[0]])
+        q.put(node)
         return q
 
+    def is_possible_solution(self, candidate_node):
+        """Check if the candidate node is a possible solution"""
+        if candidate_node.get_current_value() <= self._bound_value and \
+                candidate_node.get_groups() == self._groups and candidate_node.level() == self.max_level():
+            return True
+        return False
+
     def resolve(self):
-        candidate = None
+        """Resolver of the problem: creates a tree of execution with the node queue of the Problem class"""
+        possible_solution = None
         while not self._queue.empty():
-            n = self._queue.get()
+            candidate = self._queue.get()
 
-            if n.get_current_value() < self._bound_function_value and \
-                    n.get_groups() == self._groups and len(n.get_actors()) == self.get_number_characters():
-
-                self._bound_function_value = n.get_current_value()
-                candidate = n
+            if self.is_possible_solution(candidate):
+                self._bound_value = candidate.get_current_value()
+                possible_solution = candidate
             else:
-                for a in self.get_actors_reverse_sorted_by_value():
-                    if a not in n.get_actors():
-                        actors_of_new_node = n.get_actors().copy()
+                if candidate.have_more_chields():
+                    candidate.get_next_to_be_visited()
+
+                for a in self.get_actors_sorted_by_value():
+                    if a not in candidate.get_actors():
+                        actors_of_new_node = candidate.get_actors().copy()
                         actors_of_new_node.append(a)
                         new_node = Node(actors_of_new_node)
                         self._queue.put(new_node)
 
-        return candidate
+        return possible_solution
