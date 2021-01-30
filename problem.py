@@ -31,10 +31,8 @@ class Problem:
         return sorted(self._actors, key=lambda x: x.get_value())
 
     def initialize_queue(self):
-        """Initialize queue with the most cheap actor"""
+        """Initialize a empty queue"""
         q = queue.Queue()
-        node = Node([self.get_actors_sorted_by_value()[0]])
-        q.put(node)
         return q
 
     def is_possible_solution(self, candidate_node):
@@ -47,21 +45,33 @@ class Problem:
     def resolve(self):
         """Resolver of the problem: creates a tree of execution with the node queue of the Problem class"""
         possible_solution = None
-        while not self._queue.empty():
-            candidate = self._queue.get()
+        for i in range(0, len(self.get_actors_sorted_by_value())):
+            node = Node([self.get_actors_sorted_by_value()[i]], self.get_actors_sorted_by_value()[i+1:])
+            self._queue.put(node)  # Put initial node a child of root and has all actors with higher cost then him to visit
 
-            if self.is_possible_solution(candidate):
-                self._bound_value = candidate.get_current_value()
-                possible_solution = candidate
-            else:
-                if candidate.have_more_chields():
-                    candidate.get_next_to_be_visited()
+            while not self._queue.empty():
+                candidate = self._queue.get()
 
-                for a in self.get_actors_sorted_by_value():
-                    if a not in candidate.get_actors():
+                if self.is_possible_solution(candidate) and not candidate.isVisited:
+                    self._bound_value = candidate.get_current_value()
+                    possible_solution = candidate
+                else:
+                    if candidate.have_more_childs():
+                        next_actor_to_visit = candidate.get_next_to_be_visited()  # Pick the next actor to visit
+                        candidate.remove_chield(next_actor_to_visit)  # Update actual node
+
                         actors_of_new_node = candidate.get_actors().copy()
-                        actors_of_new_node.append(a)
+                        actors_of_new_node.append(next_actor_to_visit)
                         new_node = Node(actors_of_new_node)
-                        self._queue.put(new_node)
+
+                        if candidate.have_more_childs():
+                            self._queue(candidate)  # Enqueue visited candidate to generate new node with other child
+
+                        self._queue(new_node)
+
+                    else:
+                        candidate.close_node()
+
+                candidate.visit()
 
         return possible_solution
