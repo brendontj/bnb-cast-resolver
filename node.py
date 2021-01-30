@@ -1,6 +1,3 @@
-# from actor import Actor
-
-
 class Node:
     def __init__(self, actors, children_to_visit):
         self._actors = actors
@@ -12,7 +9,7 @@ class Node:
         self.update_groups()
         self.update_current_value()
 
-        self.isClosedNode = not self.have_more_childs()
+        self.isClosedNode = not self.have_more_child()
         self.isVisited = False
 
     def get_actors(self):
@@ -33,7 +30,7 @@ class Node:
             for ga in groups_of_actor:
                 self._groups.add(ga)
 
-    def have_more_childs(self):
+    def have_more_child(self):
         if len(self._children_to_visit):
             return True
         return False
@@ -45,15 +42,23 @@ class Node:
         for actor in self._actors:
             self._current_value += actor.get_value()
 
-    def get_next_to_be_visited(self):
-        if self.have_more_childs():
+    def get_next_to_visit(self):
+        if self.have_more_child():
             return self._children_to_visit.pop(0)
 
     def close_node(self):
         self.isClosedNode = True
 
-    def remove_child(self, actor):
-        self._children_to_visit.remove(actor)
+    # def remove_child(self, actor):
+    #     self._children_to_visit.remove(actor)
 
     def visit(self):
         self.isVisited = True
+
+    def print(self):
+        print("Path of solution")
+        for a in self._actors:
+            print("Index of actor " + str(a.get_index()) + " with value " + str(a.get_value()) + " with groups ", end="(")
+            for g in a.get_groups():
+                print(str(g), end=" ")
+            print(")")
