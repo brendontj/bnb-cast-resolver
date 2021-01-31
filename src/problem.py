@@ -54,13 +54,39 @@ class Problem:
         next_actor_to_visit = node_candidate.get_next_to_visit()  # Pick the next actor to visit
         actors_of_new_node = node_candidate.get_actors().copy()
 
-        if node_candidate.get_current_value() + next_actor_to_visit.get_value() > self._max_cost:
+        if node_candidate.get_current_value() + next_actor_to_visit.get_value() > self._max_cost and \
+                node_candidate.level()+1 > self.max_level():
             return
 
         actors_of_new_node.append(next_actor_to_visit)
         new_node_children_to_visit = node_candidate.get_children_to_visit().copy()
         new_node = Node(actors_of_new_node, new_node_children_to_visit)
         self._queue.put(new_node)
+
+        if node_candidate.have_more_child():
+            self._queue.put(node_candidate)  # Enqueue visited candidate to generate new node with other child
+
+    def alternative_bound_function(self, node_candidate):
+        """Check if the next node is 'folha', then the next candidate need have all groups of the solution"""
+        next_actor_to_visit = node_candidate.get_next_to_visit()  # Pick the next actor to visit
+
+        if node_candidate.level()+1 > self.max_level():
+            return
+        elif node_candidate.level()+1 == self.max_level():
+            next_candidate_groups = node_candidate.get_groups()
+            next_candidate_groups = next_candidate_groups.union(next_actor_to_visit.get_groups())
+
+            if next_candidate_groups != self._groups:
+                return
+
+        actors_of_new_node = node_candidate.get_actors().copy()
+        actors_of_new_node.append(next_actor_to_visit)
+        new_node_children_to_visit = node_candidate.get_children_to_visit().copy()
+        new_node = Node(actors_of_new_node, new_node_children_to_visit)
+        self._queue.put(new_node)
+
+        if node_candidate.have_more_child():
+            self._queue.put(node_candidate)  # Enqueue visited candidate to generate new node with other child
 
     def resolve(self):
         """Resolver of the problem: creates a tree of execution with the node queue of the Problem class"""
@@ -82,9 +108,10 @@ class Problem:
                     if candidate.have_more_child():
                         if self._default_bound_function:
                             self.default_bound_function(candidate)
-
-                        if candidate.have_more_child():
-                            self._queue.put(candidate)  # Enqueue visited candidate to generate new node with other child
+                        else:
+                            self.alternative_bound_function(candidate)
+                        # if candidate.have_more_child():
+                        #     self._queue.put(candidate)  # Enqueue visited candidate to generate new node with other child
                     else:
                         candidate.close_node()
                 candidate.visit()

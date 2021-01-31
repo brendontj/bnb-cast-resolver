@@ -1,4 +1,5 @@
 import fileinput
+import sys
 
 
 from actor import Actor
@@ -39,7 +40,7 @@ class Reader:
 
     def exec(self):
         input_lines = []
-        for line in fileinput.input():
+        for line in sys.stdin.readlines():
             input_lines.append(line.rstrip())
         try:
             first_line = input_lines[0]

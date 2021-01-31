@@ -56,9 +56,9 @@ class Node:
         self.isVisited = True
 
     def print(self):
-        print("Path of solution")
-        for a in self._actors:
-            print("Index of actor " + str(a.get_index()) + " with value " + str(a.get_value()) + " with groups ", end="(")
-            for g in a.get_groups():
-                print(str(g), end=" ")
-            print(")")
+        actors_sorted = sorted(self._actors, key=lambda x: x.get_index())
+        for a in actors_sorted:
+            print(a.get_index(), end=" ")
+        print()
+        print(self.get_current_value())
+
