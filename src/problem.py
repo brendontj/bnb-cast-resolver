@@ -110,8 +110,6 @@ class Problem:
                             self.default_bound_function(candidate)
                         else:
                             self.alternative_bound_function(candidate)
-                        # if candidate.have_more_child():
-                        #     self._queue.put(candidate)  # Enqueue visited candidate to generate new node with other child
                     else:
                         candidate.close_node()
                 candidate.visit()

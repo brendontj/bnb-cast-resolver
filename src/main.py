@@ -6,7 +6,7 @@ from problem import Problem
 from columnar import columnar
 
 
-def report(solution_time,visited_nodes, total_cost, actors):
+def report(solution_time, visited_nodes, total_cost, actors):
     path = ""
     for a in actors:
         path += str(a.get_index()) + '->'
@@ -33,14 +33,16 @@ def main(args):
     start = time.time()
     problem.resolve()
     end = time.time()
-
-    problem.possible_solution.print()
-    report(
-        end-start,
-        problem.visited_nodes,
-        problem.possible_solution.get_current_value(),
-        problem.possible_solution.get_actors()
-    )
+    try:
+        problem.possible_solution.print()
+        report(
+            end-start,
+            problem.visited_nodes,
+            problem.possible_solution.get_current_value(),
+            problem.possible_solution.get_actors()
+        )
+    except AttributeError:
+        print('Inviável')
 
 
 if __name__ == '__main__':

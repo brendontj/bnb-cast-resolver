@@ -6,10 +6,10 @@ PIP := pip3
 .PHONY := install clean purge
 
 venv:
-# 	virtualenv -p $(PYTHON) $@
+	virtualenv -p $(PYTHON) $@
 
 install: venv
-# 	source $</bin/activate && $(PIP) install .
+	source $</bin/activate && $(PIP) install -r requirements.txt
 
 elenco: venv install
 	echo '#! /usr/bin/env bash' > elenco

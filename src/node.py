@@ -49,9 +49,6 @@ class Node:
     def close_node(self):
         self.isClosedNode = True
 
-    # def remove_child(self, actor):
-    #     self._children_to_visit.remove(actor)
-
     def visit(self):
         self.isVisited = True
 
