@@ -49,24 +49,21 @@ class Problem:
             return True
         return False
 
-    def default_bound_function(self, node_candidate):
+    def alternative_bound_function(self, node_candidate):
         """Check if the next node value with the future path can be a solution of the problem"""
         next_actor_to_visit = node_candidate.get_next_to_visit()  # Pick the next actor to visit
-        actors_of_new_node = node_candidate.get_actors().copy()
 
-        if node_candidate.get_current_value() + next_actor_to_visit.get_value() > self._max_cost and \
-                node_candidate.level()+1 > self.max_level():
+        if node_candidate.get_current_value() + next_actor_to_visit.get_value() > self._max_cost \
+                or node_candidate.level()+1 > self._number_characters:
             return
 
+        actors_of_new_node = node_candidate.get_actors().copy()
         actors_of_new_node.append(next_actor_to_visit)
         new_node_children_to_visit = node_candidate.get_children_to_visit().copy()
         new_node = Node(actors_of_new_node, new_node_children_to_visit)
         self._queue.put(new_node)
 
-        if node_candidate.have_more_child():
-            self._queue.put(node_candidate)  # Enqueue visited candidate to generate new node with other child
-
-    def alternative_bound_function(self, node_candidate):
+    def default_bound_function(self, node_candidate):
         """Check if the next node is 'folha', then the next candidate need have all groups of the solution"""
         next_actor_to_visit = node_candidate.get_next_to_visit()  # Pick the next actor to visit
 
@@ -85,9 +82,6 @@ class Problem:
         new_node = Node(actors_of_new_node, new_node_children_to_visit)
         self._queue.put(new_node)
 
-        if node_candidate.have_more_child():
-            self._queue.put(node_candidate)  # Enqueue visited candidate to generate new node with other child
-
     def resolve(self):
         """Resolver of the problem: creates a tree of execution with the node queue of the Problem class"""
         for i in range(0, len(self.get_actors_sorted_by_value())):
@@ -103,13 +97,15 @@ class Problem:
                 if not candidate.isVisited and self.is_possible_solution(candidate):
                     self._max_cost = candidate.get_current_value()
                     self.possible_solution = candidate
-                    return
                 else:
                     if candidate.have_more_child():
                         if self._default_bound_function:
                             self.default_bound_function(candidate)
                         else:
                             self.alternative_bound_function(candidate)
+
+                        if candidate.have_more_child():
+                            self._queue.put(candidate)  # Enqueue visited candidate to generate new node with other child
                     else:
                         candidate.close_node()
                 candidate.visit()

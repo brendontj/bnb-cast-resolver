@@ -11,7 +11,7 @@ def report(solution_time, visited_nodes, total_cost, actors):
     for a in actors:
         path += str(a.get_index()) + '->'
     path = path[:-2]
-    headers = ['Total time', 'Visited node', 'Total cost', 'Solution path']
+    headers = ['Total time(s)', 'Visited node', 'Total cost', 'Solution path']
 
     data = [
         [str(f'{solution_time:.20f}'), str(visited_nodes), str(total_cost), path],
